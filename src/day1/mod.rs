@@ -3,24 +3,41 @@ use std::cmp::{max, min};
 use nom::{
     character::complete::{line_ending, space1},
     combinator::opt,
-    multi::many0,
+    multi::{fold_many0, many0},
     sequence::{terminated, tuple},
     IResult,
 };
 
 use crate::common::{nom_utils::parser_u64, string_utils::read_file_to_string};
 
+struct ListPair {
+    left: Vec<u64>,
+    right: Vec<u64>,
+}
+
+impl ListPair {
+    pub fn new() -> ListPair {
+        ListPair {
+            left: Vec::new(),
+            right: Vec::new(),
+        }
+    }
+}
+
 pub fn run() {
     let input = read_file_to_string("input/day1.txt");
-    let (_remaining_input, pairs) = many0(pair_location_id)(input.as_str()).unwrap();
-
-    // assemble left and right list
-    let mut left_list = Vec::new();
-    let mut right_list = Vec::new();
-    for (left, right) in pairs {
-        left_list.push(left);
-        right_list.push(right);
-    }
+    let (_remaining_input, list_pair) = fold_many0(
+        pair_location_id,
+        ListPair::new,
+        |mut acc: ListPair, item| {
+            acc.left.push(item.0);
+            acc.right.push(item.1);
+            acc
+        },
+    )(&input)
+    .unwrap();
+    let mut left_list = list_pair.left;
+    let mut right_list = list_pair.right;
 
     left_list.sort();
     right_list.sort();
@@ -63,6 +80,7 @@ fn pair_location_id(input: &str) -> IResult<&str, (u64, u64)> {
 #[cfg(test)]
 mod test {
     use common::string_utils::read_file_to_string;
+    use nom::multi::fold_many0;
 
     use crate::{common, day1::*};
 
@@ -82,5 +100,23 @@ mod test {
         assert_eq!(pairs[0].1, 43247);
         assert_eq!(pairs[1].0, 14780);
         assert_eq!(pairs[1].1, 86274);
+    }
+
+    #[test]
+    pub fn test_fold() {
+        let input = read_file_to_string("input/day1.txt");
+        let (remaining_input, list_pair) = fold_many0(
+            pair_location_id,
+            ListPair::new,
+            |mut acc: ListPair, item| {
+                acc.left.push(item.0);
+                acc.right.push(item.1);
+                acc
+            },
+        )(&input)
+        .unwrap();
+        assert_eq!("", remaining_input);
+        assert_eq!(1000, list_pair.left.len());
+        assert_eq!(1000, list_pair.right.len());
     }
 }
