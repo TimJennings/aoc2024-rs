@@ -77,8 +77,8 @@ pub fn run2() {
         }
         file_mode = !file_mode;
     }
-    println!("{:?}", file_map);
-    println!("{:?}", memory);
+    // println!("{:?}", file_map);
+    // println!("{:?}", memory);
 
     // compact it
     // starting with last used next_id (-1)
@@ -86,10 +86,10 @@ pub fn run2() {
     while next_id >= 0 {
         let (file_index, file_size) = file_map.get(&next_id).unwrap();
 
-        println!(
-            "id: {}, starting at index: {}, size: {}",
-            next_id, file_index, file_size
-        );
+        // println!(
+        //     "id: {}, starting at index: {}, size: {}",
+        //     next_id, file_index, file_size
+        // );
 
         // find a gap of that size then pull it in
         let mut search_index = 0;
@@ -130,7 +130,7 @@ pub fn run2() {
         next_id = next_id - 1;
     }
 
-    println!("{:?}", memory);
+    // println!("{:?}", memory);
 
     // checksum it
     let mut checksum = 0;

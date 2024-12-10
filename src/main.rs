@@ -2,6 +2,7 @@ use std::{env, time::Instant};
 
 mod common;
 mod day1;
+mod day10;
 mod day2;
 mod day3;
 mod day4;
@@ -13,7 +14,7 @@ mod day9;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let day = if args.len() >= 2 { &args[1] } else { "9" };
+    let day = if args.len() >= 2 { &args[1] } else { "10" };
 
     println!("Running day {day}");
     let now = Instant::now();
@@ -50,9 +51,13 @@ fn main() {
             day9::run();
             day9::run2();
         }
+        "10" => {
+            day10::run();
+            day10::run2();
+        }
         _ => {}
     }
     let elapsed_time = now.elapsed();
     println!("Running took {} milliseconds.", elapsed_time.as_millis());
-    // println!("Running took {} nanoseconds.", elapsed_time.as_nanos());
+    println!("Running took {} nanoseconds.", elapsed_time.as_nanos());
 }
