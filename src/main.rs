@@ -3,6 +3,7 @@ use std::{env, time::Instant};
 mod common;
 mod day1;
 mod day10;
+mod day11;
 mod day2;
 mod day3;
 mod day4;
@@ -14,7 +15,7 @@ mod day9;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let day = if args.len() >= 2 { &args[1] } else { "10" };
+    let day = if args.len() >= 2 { &args[1] } else { "11" };
 
     println!("Running day {day}");
     let now = Instant::now();
@@ -54,6 +55,10 @@ fn main() {
         "10" => {
             day10::run();
             day10::run2();
+        }
+        "11" => {
+            day11::run();
+            day11::run2();
         }
         _ => {}
     }
