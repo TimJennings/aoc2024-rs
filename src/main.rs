@@ -4,6 +4,7 @@ mod common;
 mod day1;
 mod day10;
 mod day11;
+mod day12;
 mod day2;
 mod day3;
 mod day4;
@@ -15,7 +16,7 @@ mod day9;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let day = if args.len() >= 2 { &args[1] } else { "11" };
+    let day = if args.len() >= 2 { &args[1] } else { "12" };
 
     println!("Running day {day}");
     let now = Instant::now();
@@ -59,6 +60,9 @@ fn main() {
         "11" => {
             day11::run();
             day11::run2();
+        }
+        "12" => {
+            day12::run();
         }
         _ => {}
     }
