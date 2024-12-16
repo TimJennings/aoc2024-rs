@@ -1,3 +1,5 @@
+use std::fmt::{Display, Write};
+
 use super::string_utils;
 
 #[derive(PartialEq, Eq, PartialOrd, Ord, Debug, Clone, Copy, Hash)]
@@ -11,6 +13,21 @@ pub struct Grid<T> {
     grid: Vec<T>,
     pub width: usize,
     pub height: usize,
+}
+
+impl<T> Display for Grid<T>
+where
+    T: PartialEq<T> + Display,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        for y in 0..self.height {
+            for x in 0..self.width {
+                self.at(x as i32, y as i32).unwrap().fmt(f);
+            }
+            write!(f, "\n");
+        }
+        Ok(())
+    }
 }
 
 pub fn parse_string_grid(input: &str) -> (Vec<char>, usize, usize) {
