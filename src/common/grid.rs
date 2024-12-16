@@ -7,50 +7,61 @@ pub struct Direction {
 }
 
 #[derive(Debug, Clone)]
-pub struct Grid {
-    grid: String,
+pub struct Grid<T> {
+    grid: Vec<T>,
     pub width: usize,
     pub height: usize,
 }
 
-impl Grid {
-    pub fn new(mut input: &str) -> Self {
-        let vecI = string_utils::string_to_vec(input);
+pub fn parse_string_grid(input: &str) -> (Vec<char>, usize, usize) {
+    let vecI = string_utils::string_to_vec(input);
+    let mut vecC = Vec::new();
+    for s in vecI.iter() {
+        for c in s.chars() {
+            vecC.push(c);
+        }
+    }
 
-        let width = vecI[0].len();
-        let height = vecI.len();
+    let width = vecI[0].len();
+    let height = vecI.len();
+    (vecC, width, height)
+}
+
+impl<T> Grid<T>
+where
+    T: PartialEq<T>,
+{
+    pub fn new(input: Vec<T>, width: usize, height: usize) -> Self {
         Grid {
-            grid: vecI.join(""),
+            grid: input,
             height: height,
             width: width,
         }
     }
 
-    pub fn set(&mut self, x: i32, y: i32, value: char) {
-        self.grid.replace_range(
-            (y as usize * self.width) + x as usize
-                ..(y as usize * self.width) + x as usize + 1 as usize,
-            &value.to_string(),
-        );
+    pub fn set(&mut self, x: i32, y: i32, value: T) {
+        self.grid[(y as usize * self.width) + x as usize] = value;
     }
 
-    pub fn at(&self, x: i32, y: i32) -> Option<char> {
+    pub fn at(&self, x: i32, y: i32) -> Option<&T> {
         if x < 0 || x >= self.width as i32 || y < 0 || y >= self.height as i32 {
             return None;
         } else {
-            if (y as usize * self.width) + x as usize >= 19739 {
-                println!("aaah {},{}", x, y);
-            }
-
-            return Some(self.grid.as_bytes()[(y as usize * self.width) + x as usize] as char);
+            return Some(&self.grid[(y as usize * self.width) + x as usize]);
         }
     }
 
-    pub fn find_first(&self, to_find: char) -> Option<(i32, i32)> {
+    pub fn find_first(&self, to_find: &T) -> Option<(i32, i32)> {
         // walk the grid until we find the character
-        let found = self.grid.find(to_find);
+        let mut index = None;
+        for (i, item) in self.grid.iter().enumerate() {
+            if item == to_find {
+                index = Some(i);
+                break;
+            }
+        }
 
-        match found {
+        match index {
             None => None,
             Some(a) => {
                 let x = a / self.width;

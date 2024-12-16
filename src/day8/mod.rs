@@ -4,7 +4,10 @@ mod test {
 
     use itertools::Itertools;
 
-    use crate::common::{grid::Grid, string_utils::read_file_to_string};
+    use crate::common::{
+        grid::{self, parse_string_grid, Grid},
+        string_utils::read_file_to_string,
+    };
 
     const TEST_DATA: &str = r"............
 ........0...
@@ -21,7 +24,8 @@ mod test {
 
     #[test]
     pub fn test1() {
-        let grid = Grid::new(&TEST_DATA);
+        let (grid_vec, grid_width, grid_height) = parse_string_grid(&TEST_DATA);
+        let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
         let mut x: i32 = 0;
         let mut y: i32 = 0;
@@ -30,8 +34,8 @@ mod test {
 
         while y < grid.height as i32 {
             while x < grid.width as i32 {
-                let c = grid.at(x, y).unwrap_or('.');
-                if grid.at(x, y).unwrap_or('.') != '.' {
+                let c = grid.at(x, y).unwrap_or(&'.');
+                if grid.at(x, y).unwrap_or(&'.') != &'.' {
                     match antenas.get_mut(&c) {
                         None => {
                             antenas.insert(c, vec![(x, y)]);
@@ -93,7 +97,8 @@ mod test {
 
     #[test]
     pub fn test2() {
-        let grid = Grid::new(&TEST_DATA_2);
+        let (grid_vec, grid_width, grid_height) = parse_string_grid(&TEST_DATA_2);
+        let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
         let mut x: i32 = 0;
         let mut y: i32 = 0;
@@ -102,8 +107,8 @@ mod test {
 
         while y < grid.height as i32 {
             while x < grid.width as i32 {
-                let c = grid.at(x, y).unwrap_or('.');
-                if grid.at(x, y).unwrap_or('.') != '.' {
+                let c = grid.at(x, y).unwrap_or(&'.');
+                if grid.at(x, y).unwrap_or(&'.') != &'.' {
                     match antenas.get_mut(&c) {
                         None => {
                             antenas.insert(c, vec![(x, y)]);
@@ -165,7 +170,8 @@ mod test {
     #[test]
     pub fn test_full() {
         let input = read_file_to_string("input/day8.txt");
-        let grid = Grid::new(&input);
+        let (grid_vec, grid_width, grid_height) = parse_string_grid(&input);
+        let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
         let mut x: i32 = 0;
         let mut y: i32 = 0;
@@ -174,8 +180,8 @@ mod test {
 
         while y < grid.height as i32 {
             while x < grid.width as i32 {
-                let c = grid.at(x, y).unwrap_or('.');
-                if grid.at(x, y).unwrap_or('.') != '.' {
+                let c = grid.at(x, y).unwrap_or(&'.');
+                if grid.at(x, y).unwrap_or(&'.') != &'.' {
                     match antenas.get_mut(&c) {
                         None => {
                             antenas.insert(c, vec![(x, y)]);
@@ -227,7 +233,8 @@ mod test {
     #[test]
     pub fn test_full2() {
         let input = read_file_to_string("input/day8.txt");
-        let grid = Grid::new(&input);
+        let (grid_vec, grid_width, grid_height) = parse_string_grid(&input);
+        let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
         let mut x: i32 = 0;
         let mut y: i32 = 0;
@@ -236,8 +243,8 @@ mod test {
 
         while y < grid.height as i32 {
             while x < grid.width as i32 {
-                let c = grid.at(x, y).unwrap_or('.');
-                if grid.at(x, y).unwrap_or('.') != '.' {
+                let c = grid.at(x, y).unwrap_or(&'.');
+                if grid.at(x, y).unwrap_or(&'.') != &'.' {
                     match antenas.get_mut(&c) {
                         None => {
                             antenas.insert(c, vec![(x, y)]);

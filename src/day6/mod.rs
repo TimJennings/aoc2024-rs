@@ -3,25 +3,26 @@ use std::collections::HashSet;
 use nom::combinator::peek;
 
 use crate::common::{
-    grid::{self, Direction, Grid},
+    grid::{self, parse_string_grid, Direction, Grid},
     string_utils::read_file_to_string,
 };
 
 pub fn run() {
     let input = read_file_to_string("input/day6.txt");
-    let grid = grid::Grid::new(&input);
+    let (grid_vec, grid_width, grid_height) = parse_string_grid(&input);
+    let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
     let mut set = HashSet::new();
 
     println!("{:?}", grid);
 
     // find the guard
-    println!("{:?}", grid.find_first('^'));
-    let (mut guardX, mut guardY) = grid.find_first('^').unwrap();
+    println!("{:?}", grid.find_first(&'^'));
+    let (mut guardX, mut guardY) = grid.find_first(&'^').unwrap();
 
     let mut guardDirection = NORTH;
-    let mut character_at = grid.at(guardX, guardY).unwrap_or(',');
-    while character_at != ',' {
+    let mut character_at = grid.at(guardX, guardY).unwrap_or(&',');
+    while character_at != &',' {
         // record where the guard has been
         set.insert((guardX, guardY));
 
@@ -29,12 +30,12 @@ pub fn run() {
         let peek_x = guardX + guardDirection.x;
         let peek_y = guardY + guardDirection.y;
         // peek next character
-        let next_character = grid.at(peek_x, peek_y).unwrap_or(',');
+        let next_character = grid.at(peek_x, peek_y).unwrap_or(&',');
         println!(
             "consider moving guard to ({},{}), it is a {}",
             peek_x, peek_y, next_character
         );
-        if next_character == '#' {
+        if next_character == &'#' {
             // needs to turn
             guardDirection = turn_right(&guardDirection);
         }
@@ -42,7 +43,7 @@ pub fn run() {
         // move
         guardX = guardX + guardDirection.x;
         guardY = guardY + guardDirection.y;
-        character_at = grid.at(guardX, guardY).unwrap_or(',');
+        character_at = grid.at(guardX, guardY).unwrap_or(&',');
         println!(
             "moved guard to ({},{}), it is a {}",
             peek_x, peek_y, next_character
@@ -54,7 +55,8 @@ pub fn run() {
 
 pub fn run2() {
     let input = read_file_to_string("input/day6.txt");
-    let grid = grid::Grid::new(&input);
+    let (grid_vec, grid_width, grid_height) = parse_string_grid(&input);
+    let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
     let mut set = HashSet::new();
 
@@ -62,11 +64,11 @@ pub fn run2() {
 
     // find the guard
     // println!("{:?}", grid.find_first('^'));
-    let (mut guardX, mut guardY) = grid.find_first('^').unwrap();
+    let (mut guardX, mut guardY) = grid.find_first(&'^').unwrap();
 
     let mut guardDirection = NORTH;
-    let mut character_at = grid.at(guardX, guardY).unwrap_or(',');
-    while character_at != ',' {
+    let mut character_at = grid.at(guardX, guardY).unwrap_or(&',');
+    while character_at != &',' {
         // record where the guard has been
         set.insert((guardX, guardY));
 
@@ -74,12 +76,12 @@ pub fn run2() {
         let peek_x = guardX + guardDirection.x;
         let peek_y = guardY + guardDirection.y;
         // peek next character
-        let next_character = grid.at(peek_x, peek_y).unwrap_or(',');
+        let next_character = grid.at(peek_x, peek_y).unwrap_or(&',');
         // println!(
         //     "consider moving guard to ({},{}), it is a {}",
         //     peek_x, peek_y, next_character
         // );
-        if next_character == '#' {
+        if next_character == &'#' {
             // needs to turn
             guardDirection = turn_right(&guardDirection);
         }
@@ -87,7 +89,7 @@ pub fn run2() {
         // move
         guardX = guardX + guardDirection.x;
         guardY = guardY + guardDirection.y;
-        character_at = grid.at(guardX, guardY).unwrap_or(',');
+        character_at = grid.at(guardX, guardY).unwrap_or(&',');
         // println!(
         //     "moved guard to ({},{}), it is a {}",
         //     peek_x, peek_y, next_character
@@ -95,7 +97,7 @@ pub fn run2() {
     }
 
     // with the exception of the initial position
-    let (newGuardX, newGuardY) = grid.find_first('^').unwrap();
+    let (newGuardX, newGuardY) = grid.find_first(&'^').unwrap();
     set.remove(&(newGuardX, newGuardY));
     // regenerate the grid with that space blocked and check for loops
     let mut block_positions = HashSet::new();
@@ -130,15 +132,15 @@ pub fn turn_right(direction: &Direction) -> Direction {
 }
 
 fn contains_loop(
-    grid: grid::Grid,
+    grid: grid::Grid<char>,
     mut loop_set: HashSet<(i32, i32, Direction)>,
     mut guardX: i32,
     mut guardY: i32,
     mut guardDirection: Direction,
 ) -> bool {
-    let mut character_at = grid.at(guardX, guardY).unwrap_or(',');
+    let mut character_at = grid.at(guardX, guardY).unwrap_or(&',');
 
-    while character_at != ',' {
+    while character_at != &',' {
         // has guard been here before?
         if loop_set.contains(&(guardX, guardY, guardDirection)) {
             // loop!
@@ -150,25 +152,25 @@ fn contains_loop(
         let mut peek_x = guardX + guardDirection.x;
         let mut peek_y = guardY + guardDirection.y;
         // peek next character
-        let mut next_character = grid.at(peek_x, peek_y).unwrap_or(',');
+        let mut next_character = grid.at(peek_x, peek_y).unwrap_or(&',');
         // println!(
         //     "consider moving guard to ({},{}), it is a {}",
         //     peek_x, peek_y, next_character
         // );
 
-        while next_character == '#' {
+        while next_character == &'#' {
             // needs to turn
             guardDirection = turn_right(&guardDirection);
             peek_x = guardX + guardDirection.x;
             peek_y = guardY + guardDirection.y;
             // peek next character
-            next_character = grid.at(peek_x, peek_y).unwrap_or(',');
+            next_character = grid.at(peek_x, peek_y).unwrap_or(&',');
         }
         //move
         guardX = guardX + guardDirection.x;
         guardY = guardY + guardDirection.y;
 
-        character_at = grid.at(guardX, guardY).unwrap_or(',');
+        character_at = grid.at(guardX, guardY).unwrap_or(&',');
         // println!(
         //     "moved guard to ({},{}), it is a {}",
         //     peek_x, peek_y, next_character
@@ -184,7 +186,7 @@ mod test {
     use crate::{
         common::{
             self,
-            grid::{self},
+            grid::{self, parse_string_grid},
         },
         day6::{contains_loop, turn_right, NORTH},
     };
@@ -202,19 +204,20 @@ mod test {
 
     #[test]
     pub fn test() {
-        let grid = grid::Grid::new(&TEST_DATA);
+        let (grid_vec, grid_width, grid_height) = parse_string_grid(&TEST_DATA);
+        let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
         let mut set = HashSet::new();
 
         println!("{:?}", grid);
 
         // find the guard
-        println!("{:?}", grid.find_first('^'));
-        let (mut guardX, mut guardY) = grid.find_first('^').unwrap();
+        println!("{:?}", grid.find_first(&'^'));
+        let (mut guardX, mut guardY) = grid.find_first(&'^').unwrap();
 
         let mut guardDirection = NORTH;
-        let mut character_at = grid.at(guardX, guardY).unwrap_or(',');
-        while character_at != ',' {
+        let mut character_at = grid.at(guardX, guardY).unwrap_or(&',');
+        while character_at != &',' {
             // record where the guard has been
             set.insert((guardX, guardY));
 
@@ -222,12 +225,12 @@ mod test {
             let peek_x = guardX + guardDirection.x;
             let peek_y = guardY + guardDirection.y;
             // peek next character
-            let next_character = grid.at(peek_x, peek_y).unwrap_or(',');
+            let next_character = grid.at(peek_x, peek_y).unwrap_or(&',');
             println!(
                 "consider moving guard to ({},{}), it is a {}",
                 peek_x, peek_y, next_character
             );
-            if next_character == '#' {
+            if next_character == &'#' {
                 // needs to turn
                 guardDirection = turn_right(&guardDirection);
             }
@@ -235,7 +238,7 @@ mod test {
             // move
             guardX = guardX + guardDirection.x;
             guardY = guardY + guardDirection.y;
-            character_at = grid.at(guardX, guardY).unwrap_or(',');
+            character_at = grid.at(guardX, guardY).unwrap_or(&',');
             println!(
                 "moved guard to ({},{}), it is a {}",
                 peek_x, peek_y, next_character
@@ -248,20 +251,20 @@ mod test {
 
     #[test]
     pub fn loop_trace() {
-        // let input = common::string_utils::read_file_to_string("input/day6.txt");
-        let grid = grid::Grid::new(&TEST_DATA);
+        let (grid_vec, grid_width, grid_height) = parse_string_grid(&TEST_DATA);
+        let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
         let mut set = HashSet::new();
 
         println!("{:?}", grid);
 
         // find the guard
-        println!("{:?}", grid.find_first('^'));
-        let (mut guardX, mut guardY) = grid.find_first('^').unwrap();
+        println!("{:?}", grid.find_first(&'^'));
+        let (mut guardX, mut guardY) = grid.find_first(&'^').unwrap();
 
         let mut guardDirection = NORTH;
-        let mut character_at = grid.at(guardX, guardY).unwrap_or(',');
-        while character_at != ',' {
+        let mut character_at = grid.at(guardX, guardY).unwrap_or(&',');
+        while character_at != &',' {
             // record where the guard has been
             set.insert((guardX, guardY));
 
@@ -269,24 +272,24 @@ mod test {
             let mut peek_x = guardX + guardDirection.x;
             let mut peek_y = guardY + guardDirection.y;
             // peek next character
-            let mut next_character = grid.at(peek_x, peek_y).unwrap_or(',');
+            let mut next_character = grid.at(peek_x, peek_y).unwrap_or(&',');
             println!(
                 "consider moving guard to ({},{}), it is a {}",
                 peek_x, peek_y, next_character
             );
-            while next_character == '#' {
+            while next_character == &'#' {
                 // needs to turn
                 guardDirection = turn_right(&guardDirection);
                 peek_x = guardX + guardDirection.x;
                 peek_y = guardY + guardDirection.y;
                 // peek next character
-                next_character = grid.at(peek_x, peek_y).unwrap_or(',');
+                next_character = grid.at(peek_x, peek_y).unwrap_or(&',');
             }
             //move
             guardX = guardX + guardDirection.x;
             guardY = guardY + guardDirection.y;
 
-            character_at = grid.at(guardX, guardY).unwrap_or(',');
+            character_at = grid.at(guardX, guardY).unwrap_or(&',');
             println!(
                 "moved guard to ({},{}), it is a {}",
                 peek_x, peek_y, next_character
@@ -294,7 +297,7 @@ mod test {
         }
 
         // with the exception of the initial position
-        let (newGuardX, newGuardY) = grid.find_first('^').unwrap();
+        let (newGuardX, newGuardY) = grid.find_first(&'^').unwrap();
         set.remove(&(newGuardX, newGuardY));
         // regenerate the grid with that space blocked and check for loops
         let mut block_positions = HashSet::new();

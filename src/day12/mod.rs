@@ -19,7 +19,7 @@ mod test {
 
     use crate::{
         common::{
-            grid::{self, Direction, Grid},
+            grid::{self, parse_string_grid, Direction, Grid},
             string_utils::read_file_to_string,
         },
         day12::{EAST, NORTH, NORTH_EAST, NORTH_WEST, SOUTH, SOUTH_EAST, SOUTH_WEST, WEST},
@@ -65,7 +65,8 @@ AAAAAA";
     #[test]
     pub fn test() {
         let input = read_file_to_string("input/day12.txt");
-        let grid = grid::Grid::new(input.as_str());
+        let (grid_vec, grid_width, grid_height) = parse_string_grid(&input);
+        let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
         // char,x,y to area_id,fence_count
         let mut areas: HashMap<(char, (i32, i32)), (u32, u32)> = HashMap::new();
@@ -76,7 +77,7 @@ AAAAAA";
             for x in 0..grid.width {
                 let x = x as i32;
                 let y = y as i32;
-                let current_char = grid.at(x, y).unwrap();
+                let current_char = *grid.at(x, y).unwrap();
 
                 check_for_region(&mut areas, &grid, current_char, x, y, &mut next_id);
             }
@@ -87,7 +88,7 @@ AAAAAA";
             for x in 0..grid.width {
                 let x = x as i32;
                 let y = y as i32;
-                let current_char = grid.at(x, y).unwrap();
+                let current_char = *grid.at(x, y).unwrap();
 
                 let (current_area_id, _current_fences) =
                     areas.get(&(current_char, (x, y))).unwrap();
@@ -135,7 +136,8 @@ AAAAAA";
     #[test]
     pub fn test2() {
         let input = read_file_to_string("input/day12.txt");
-        let grid = grid::Grid::new(input.as_str());
+        let (grid_vec, grid_width, grid_height) = parse_string_grid(&input);
+        let grid = grid::Grid::new(grid_vec, grid_width, grid_height);
 
         // char,x,y to area_id,fence_count
         let mut areas: HashMap<(char, (i32, i32)), (u32, u32)> = HashMap::new();
@@ -146,7 +148,7 @@ AAAAAA";
             for x in 0..grid.width {
                 let x = x as i32;
                 let y = y as i32;
-                let current_char = grid.at(x, y).unwrap();
+                let current_char = *grid.at(x, y).unwrap();
 
                 check_for_region(&mut areas, &grid, current_char, x, y, &mut next_id);
             }
@@ -157,7 +159,7 @@ AAAAAA";
             for x in 0..grid.width {
                 let x = x as i32;
                 let y = y as i32;
-                let current_char = grid.at(x, y).unwrap();
+                let current_char = *grid.at(x, y).unwrap();
 
                 let (current_area_id, _current_fences) =
                     areas.get(&(current_char, (x, y))).unwrap();
@@ -357,7 +359,7 @@ AAAAAA";
 
     fn check_for_region(
         areas: &mut HashMap<(char, (i32, i32)), (u32, u32)>,
-        grid: &Grid,
+        grid: &Grid<char>,
         current_char: char,
         x: i32,
         y: i32,
@@ -374,7 +376,7 @@ AAAAAA";
             let area_id = areas.get(&(current_char, (x, y))).unwrap().0;
 
             for direction in [NORTH, EAST, SOUTH, WEST] {
-                let direction_char = grid.at(x + direction.x, y + direction.y).unwrap_or(',');
+                let direction_char = *grid.at(x + direction.x, y + direction.y).unwrap_or(&',');
 
                 if direction_char == current_char {
                     if !areas.contains_key(&(current_char, (x + direction.x, y + direction.y))) {
@@ -403,10 +405,10 @@ AAAAAA";
         x: i32,
         y: i32,
         areas: &mut HashMap<(char, (i32, i32)), (u32, u32)>,
-        grid: &Grid,
+        grid: &Grid<char>,
     ) {
         for direction in [NORTH, EAST, SOUTH, WEST] {
-            let direction_char = grid.at(x + direction.x, y + direction.y).unwrap_or(',');
+            let direction_char = *grid.at(x + direction.x, y + direction.y).unwrap_or(&',');
 
             if direction_char == current_char {
                 // that area isn't already tagged
